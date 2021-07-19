@@ -58,6 +58,9 @@ for (collection in collection_urls) {
   # Get meeting URLs.
   meeting_urls <- get_meeting_urls(collection)
   
+  # Wait between requests.
+  Sys.sleep(1)
+  
   # Download meeting documents.
   for (meeting_url in meeting_urls) {
     file_name <- str_c("data/", str_extract(meeting_url, "\\d{5}/\\d{5}.*"))
@@ -67,7 +70,4 @@ for (collection in collection_urls) {
     # Wait between requests.
     Sys.sleep(1)
   }
-  
-  # Wait between requests.
-  Sys.sleep(1)
 }
