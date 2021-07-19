@@ -57,6 +57,7 @@ for (collection in collection_urls) {
 
   # Get meeting URLs.
   meeting_urls <- get_meeting_urls(collection)
+  print(str_c("Requesting documents from ", collection))
   
   # Wait between requests.
   Sys.sleep(1)
