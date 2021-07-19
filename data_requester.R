@@ -66,9 +66,11 @@ for (collection in collection_urls) {
   for (meeting_url in meeting_urls) {
     file_name <- str_c("data/", str_extract(meeting_url, "\\d{5}/\\d{5}.*"))
     
-    curl_download(meeting_url, file_name)
-    
-    # Wait between requests.
-    Sys.sleep(1)
+    if (!file.exists(file_name)) {
+      curl_download(meeting_url, file_name)
+      
+      # Wait between requests.
+      Sys.sleep(1)
+    }
   }
 }
