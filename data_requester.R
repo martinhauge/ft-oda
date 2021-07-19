@@ -7,7 +7,7 @@ library(curl)
 
 # Initial setup.
 # Path to destination for downloaded documents:
-data_folder <- "test"
+data_folder <- "data"
 
 # Sleep time between requests in seconds
 sleep_time = 1
@@ -53,11 +53,14 @@ if (!dir.exists(data_folder)) {
   dir.create(data_folder)
 }
 
+# Absolute data destination
+print(str_c("Saving documents to ", file.path(getwd(), data_folder)))
+
 # Loop through collections and prepare download of meeting data.
 for (collection in collection_urls) {
   
   # Make directory for data files.
-  dir_name <- str_c(data_folder, "/", str_extract(collection, "\\d{5}"))
+  dir_name <- file.path(data_folder, str_extract(collection, "\\d{5}"))
   if (!dir.exists(dir_name)) {
     dir.create(dir_name)
   }
@@ -71,7 +74,7 @@ for (collection in collection_urls) {
   
   # Download meeting documents.
   for (meeting_url in meeting_urls) {
-    file_name <- str_c(data_folder, "/", str_extract(meeting_url, "\\d{5}/\\d{5}.*"))
+    file_name <- file.path(data_folder, str_extract(meeting_url, "\\d{5}/\\d{5}.*"))
     
     if (!file.exists(file_name)) {
       curl_download(meeting_url, file_name)
