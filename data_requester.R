@@ -5,6 +5,13 @@
 library(tidyverse)
 library(curl)
 
+# Initial setup.
+# Path to destination for downloaded documents:
+data_folder <- "test"
+
+# Sleep time between requests in seconds
+sleep_time = 1
+
 # Define requester functions.
 get_collection_urls <- function(base_url){
   
@@ -42,15 +49,15 @@ request_url <- "ftp://oda.ft.dk/ODAXML/Referat/samling/"
 collection_urls <- get_collection_urls(request_url)
 
 # Make sure data folder exists.
-if (!dir.exists("data")) {
-  dir.create("data")
+if (!dir.exists(data_folder)) {
+  dir.create(data_folder)
 }
 
 # Loop through collections and prepare download of meeting data.
 for (collection in collection_urls) {
   
   # Make directory for data files.
-  dir_name <- str_c("data/", str_extract(collection, "\\d{5}"))
+  dir_name <- str_c(data_folder, "/", str_extract(collection, "\\d{5}"))
   if (!dir.exists(dir_name)) {
     dir.create(dir_name)
   }
@@ -60,17 +67,17 @@ for (collection in collection_urls) {
   print(str_c("Requesting documents from ", collection))
   
   # Wait between requests.
-  Sys.sleep(1)
+  Sys.sleep(sleep_time)
   
   # Download meeting documents.
   for (meeting_url in meeting_urls) {
-    file_name <- str_c("data/", str_extract(meeting_url, "\\d{5}/\\d{5}.*"))
+    file_name <- str_c(data_folder, "/", str_extract(meeting_url, "\\d{5}/\\d{5}.*"))
     
     if (!file.exists(file_name)) {
       curl_download(meeting_url, file_name)
       
       # Wait between requests.
-      Sys.sleep(1)
+      Sys.sleep(sleep_time)
     }
   }
 }
