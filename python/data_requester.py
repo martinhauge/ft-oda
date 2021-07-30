@@ -2,51 +2,69 @@ from ftplib import FTP
 from pathlib import Path
 from time import sleep
 
-data_folder = Path('data')
-
-sleep_time = 1
 
 def get_paths(con, path=''):
 	return con.nlst(path)
 
-print(f'Saving documents to {data_folder.absolute()}')
-# Open connection
-url = 'oda.ft.dk'
-path = 'ODAXML/Referat/samling'
+def connect(url, path):
+	ftp = FTP(url)
+	ftp.login()
+	ftp.cwd(path)
+	return ftp
 
-ftp = FTP(url)
-ftp.login()
+def main():
 
-ftp.cwd(path)
+	# Destination of downloaded documents.
+	data_folder = Path('data')
 
-# Find collections
+	# Rest between requests.
+	sleep_time = 1
 
-collections = get_paths(ftp)
+	print(f'Saving documents to {data_folder.absolute()}')
+	
 
-for collection in collections:
+	# Open connection
+	
+	url = 'oda.ft.dk'
+	path = 'ODAXML/Referat/samling'
 
-	print(f'Requesting data for {collection}')
+	ftp = connect(url, path)
 
-	meetings = get_paths(ftp, collection)
-	ftp.cwd(collection)
+	# Find collections
+	collections = get_paths(ftp)
 
+	# Loop through collections and prepare download of meeting data.
+	for collection in collections:
 
-	collection_folder = Path(data_folder, collection)
-	collection_folder.mkdir(parents=True, exist_ok=True)
+		print(f'Requesting data for {collection}')
 
-	sleep(sleep_time)
+		meetings = get_paths(ftp, collection)
 
-	for meeting in meetings:
-		document_path = Path(collection_folder, meeting)
+		# Navigate to collection
+		ftp.cwd(collection)
 
-		if not document_path.exists():
-			# Save document
-			ftp.retrbinary(f'RETR {meeting }', open(document_path, 'wb').write)
-
-			sleep(sleep_time)
-
-	ftp.cwd('..')
+		# Prepare destination folder
+		collection_folder = Path(data_folder, collection)
+		collection_folder.mkdir(parents=True, exist_ok=True)
 
 
-# Close connection
-ftp.quit()
+		for meeting in meetings:
+			document_path = Path(collection_folder, meeting)
+
+			if not document_path.exists():
+				
+				# Save document
+				ftp.retrbinary(f'RETR {meeting }', open(document_path, 'wb').write)
+
+				# Wait between downloads.
+				sleep(sleep_time)
+
+		# Return to parent folder.
+		ftp.cwd('..')
+
+
+	# Finally close connection.
+	ftp.quit()
+
+if __name__ == '__main__':
+	main()
