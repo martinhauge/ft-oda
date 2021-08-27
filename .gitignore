@@ -1,3 +1,4 @@
 r/data/*
 python/data/*
 python/__pycache__/
+python/env/
