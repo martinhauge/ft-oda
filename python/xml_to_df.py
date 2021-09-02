@@ -1,6 +1,7 @@
 from pathlib import Path
 from bs4 import BeautifulSoup
 import pandas as pd
+import datetime
 
 def xml_to_str(xml_path):
 	'''Open XML-file and return it as a string.
@@ -62,11 +63,18 @@ def xml_to_dict(item):
 
 	return xml_dict
 
+def parse_datetime(time_str):
+	return datetime.datetime.strptime(time_str, '%Y-%m-%dT%H:%M:%S')
+
+
 if __name__ == '__main__':
 	# Define path to XML files to be converted.
-	data_folder = ''
+	data_folder = 'data/test'
 
-	csv_file = 'file_name.csv'
+	csv_file = 'file_name1.csv'
+
+	# Use date, time and speech duration instead of start and end datetime.
+	convert_time = True
 
 	# Get list of paths to files in data folder.
 	file_paths = [Path(f) for f in Path(data_folder).iterdir()]	
@@ -79,4 +87,12 @@ if __name__ == '__main__':
 		rows.extend(xml_str_to_rows(xml_str))
 
 	# Convert data to pandas DataFrame, sort rows by time and export as csv.
-	pd.DataFrame(rows, columns=rows[0].keys()).sort_values('start_time').to_csv(csv_file, index=False)
+	df = pd.DataFrame(rows, columns=rows[0].keys()).sort_values('start_time')
+
+	if convert_time:
+		df['date'] = df['start_time'].str.extract(r'(\d\d\d\d-\d\d-\d\d)T\d\d:\d\d:\d\d')
+		df['time'] = df['start_time'].str.extract(r'\d\d\d\d-\d\d-\d\dT(\d\d:\d\d:\d\d)')
+		df['duration'] = df.apply(lambda row: parse_datetime(row['end_time']) - parse_datetime(row['start_time']) if row['end_time'] else 0, axis=1)
+		df = df[['first_name', 'last_name', 'group_name', 'role', 'date', 'time', 'duration', 'text']]
+
+	df.to_csv(csv_file, index=False)
