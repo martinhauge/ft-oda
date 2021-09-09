@@ -66,15 +66,14 @@ def xml_to_dict(item):
 def parse_datetime(time_str):
 	return datetime.datetime.strptime(time_str, '%Y-%m-%dT%H:%M:%S')
 
+def main(data_folder, csv_file):
+	
+	# data_folder = 'data/test'
 
-if __name__ == '__main__':
-	# Define path to XML files to be converted.
-	data_folder = 'data/test'
+	# csv_file = 'file_name1.csv'
 
-	csv_file = 'file_name1.csv'
-
-	# Use date, time and speech duration instead of start and end datetime.
-	convert_time = True
+	# Use date, time and speech duration instead of start and end datetime format.
+	convert_time = False
 
 	# Get list of paths to files in data folder.
 	file_paths = [Path(f) for f in Path(data_folder).iterdir()]	
@@ -96,3 +95,13 @@ if __name__ == '__main__':
 		df = df[['first_name', 'last_name', 'group_name', 'role', 'date', 'time', 'duration', 'text']]
 
 	df.to_csv(csv_file, index=False)
+
+if __name__ == '__main__':
+
+	# Define path to XML files to be converted.
+	data_folder = ''
+	
+	# Name of exported CSV output file.
+	csv_file = ''
+
+	main(data_folder, csv_file)
